@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
+    "dev": "cd client && npm run build && cd .. && ts-node-dev src/",
     "tsrun": "ts-node-dev src/"
   },
   "author": "",
