@@ -57,7 +57,7 @@ class Profile extends React.Component {
 
     deleteResume = () => {
         this.setState({deleting: true});
-        fetch('/deleteresume')
+        fetch('/api/deleteresume')
             .then(response => {
                 this.handleResponse(response)
             }).catch(err => {
