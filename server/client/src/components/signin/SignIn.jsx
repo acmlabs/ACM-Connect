@@ -37,7 +37,7 @@ class SignIn extends React.Component {
     }
   };
 
-  onClick = () => {
+  onClick = e => {
     const { email, password } = this.state;
     axios
       .post("/api/signin", {
