@@ -1,3 +1,4 @@
+process.setMaxListeners(0);
 require('dotenv').config();
 
 import { TYPES } from "./config/types";
