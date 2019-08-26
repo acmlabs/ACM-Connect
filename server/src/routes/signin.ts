@@ -104,8 +104,8 @@ const signIn = async (request: express.Request, response: express.Response) => {
             expiresIn: '1h'
         });
         response.cookie('token', token, {httpOnly: true})
-            .json({email: email})
-            .sendStatus(200);
+            .status(200)
+            .json({email: email});
     }
 };
 
