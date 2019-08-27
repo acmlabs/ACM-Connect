@@ -1,10 +1,10 @@
 process.setMaxListeners(0);
 require('dotenv').config();
 
+import { Injector } from './config/inversify.config';
 import { TYPES } from "./config/types";
 import chalk from 'chalk'
 
-import { Injector } from './config/inversify.config';
 /* START ROUTERS */
 import UploadResumeHandler from "./routes/upload";
 import SignUpHandler from "./routes/signup";

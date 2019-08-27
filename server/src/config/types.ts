@@ -11,6 +11,7 @@ const TYPES = {
     SignUpHandler: Symbol.for("SignUpHandler"),
     ResumeLinkRequestHandler: Symbol.for("ResumeLinkRequestHandler"),
     RemoveResumeHandler: Symbol.for("RemoveResumeHandler"),
+    KeyGen: Symbol.for("KeyGen")
 };
 
-export {TYPES};
+export { TYPES };

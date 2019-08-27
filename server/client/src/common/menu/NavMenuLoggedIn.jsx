@@ -19,5 +19,9 @@ export default function NavMenuLoggedIn(props) {
                 Logout
             </a>
         </Menu.Item>
+        <Menu.Item key="faq" style={{float: 'right'}}>
+            <Icon type="question"/>
+            FAQ
+        </Menu.Item>
     </Menu>)
 }

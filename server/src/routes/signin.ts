@@ -63,7 +63,7 @@ const attemptLogin = async (email: string, password: string) => {
         }
 
         const passwordMatch: boolean = bcrypt.compareSync(password, dbPasswordHash);
-        console.log(chalk.yellow(`Login with ${dbEmail}, pwd ${password} -> ${passwordMatch}`));
+        console.log(chalk.yellow(`Login with ${dbEmail} -> ${passwordMatch}`));
 
         return passwordMatch ? uid : MISMATCH;
     }

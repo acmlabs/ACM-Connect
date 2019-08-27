@@ -1,7 +1,8 @@
-import {Container} from "inversify";
+import { Container } from "inversify";
+
 import "reflect-metadata";
-import {TYPES} from './types';
-import {S3Interface} from "../s3/proxy/S3Interface";
+import { TYPES } from './types';
+import { S3Interface } from "../s3/proxy/S3Interface";
 import S3InterfaceImpl from "../s3/S3InterfaceImpl";
 import AWS from 'aws-sdk';
 
@@ -14,6 +15,8 @@ import DynamoDbInterface from "../database/proxy/DynamoDbInterface";
 import DynamoDBProxyImpl from "../database/DynamoDbInterfaceImpl";
 import SignUpHandler from "../routes/signup";
 import RemoveResumeHandler from "../routes/removeResume";
+
+import KeyGen from '../tools/keys/KeyGen';
 
 const Injector = new Container();
 
@@ -35,4 +38,6 @@ Injector.bind<SignUpHandler>(TYPES.SignUpHandler).to(SignUpHandler);
 Injector.bind<ResumeLinkRequestHandler>(TYPES.ResumeLinkRequestHandler).to(ResumeLinkRequestHandler);
 Injector.bind<RemoveResumeHandler>(TYPES.RemoveResumeHandler).to(RemoveResumeHandler);
 
-export {Injector};
+Injector.bind<KeyGen>(TYPES.KeyGen).to(KeyGen);
+
+export { Injector };

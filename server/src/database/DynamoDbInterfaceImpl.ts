@@ -1,9 +1,8 @@
-import {DocumentClient} from 'aws-sdk/clients/dynamodb';
+import AWS, { DynamoDB, Response } from 'aws-sdk';
+import chalk from 'chalk';
+import { inject, injectable } from "inversify";
+import { TYPES } from "../config/types";
 import DynamoDbInterface from './proxy/DynamoDbInterface';
-import AWS, {DynamoDB, Response} from 'aws-sdk';
-import chalk from 'chalk'
-import {TYPES} from "../config/types";
-import {inject, injectable} from "inversify";
 
 type PromiseResult<D, E> = D & { $response: Response<D, E> };
 
@@ -16,7 +15,7 @@ class DynamoDBProxyImpl implements DynamoDbInterface {
         this.clientConn = ddb;
     }
 
-    async put(document: DocumentClient.PutItemInput) {
+    async put(document: AWS.DynamoDB.Types.PutItemInput) {
         const errorCallback = (err: AWS.AWSError, data: AWS.DynamoDB.Types.PutItemOutput) => {
             if (err) {
                 console.log(chalk.red(`[DynamoDbInterfaceImpl::PUT] Error: ${err}`));

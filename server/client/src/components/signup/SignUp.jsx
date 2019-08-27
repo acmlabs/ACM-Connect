@@ -52,14 +52,14 @@ class SignUp extends React.Component {
     const { email, password, passwordConfirmation, token } = this.state;
 
     if (!this.passwordMatches(password, passwordConfirmation)) {
-      console.log("passwords dont match");
-      this.setError("The passwords need to match.");
+      message.error("The passwords need to match.");
+      return;
     } else if (!this.emailValid(email)) {
-      console.log("email isn't valid");
-      this.setError("The email is not a valid UTD email.");
+      message.error("Email isn't a valid utdallas email.");
+      return;
     }
 
-    console.log(JSON.stringify(this.state));
+    this.setState({ requestSent: true });
 
     axios
       .post("/api/signup", {
@@ -68,11 +68,17 @@ class SignUp extends React.Component {
         token: token
       })
       .then(resp => {
-        console.log(JSON.stringify(resp));
         if (resp.status === 200) {
           message.success("Successfully registered.");
           this.props.history.push("/");
+        } else {
+          message.error("Registration failed.");
+          this.setState({ requestSent: false });
         }
+      })
+      .catch(err => {
+        message.error("Registration failed.");
+        this.setState({ requestSent: false });
       });
   };
 
@@ -102,6 +108,7 @@ class SignUp extends React.Component {
   };
 
   render() {
+    const registerIconType = this.state.requestSent ? "loading" : "login";
     return (
       <div>
         <Layout className="layout" style={{ height: "100vh" }}>
@@ -138,7 +145,7 @@ class SignUp extends React.Component {
             <Row type="flex" justify="center" align="middle">
               <Col span={5} style={{ textAlign: "center" }}>
                 <Button type="primary" size="large" onClick={this.onClick}>
-                  <Icon type="Login" />
+                  <Icon type={registerIconType} />
                   Register
                 </Button>
               </Col>
