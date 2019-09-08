@@ -79,7 +79,7 @@ const setupServer = () => {
         response.sendFile(path.join(__dirname + '/../client/build/index.html'));
     });
 
-    app.listen(PORT, () => {
+    app.listen(process.env.PORT || PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
 };
