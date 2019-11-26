@@ -19,7 +19,6 @@ class UploadResumeHandler implements Handler {
     constructor(@inject(TYPES.S3Interface) s3Proxy: S3Interface,
         @inject(TYPES.DDBProxy) ddbProxy: DynamoDbInterface,
         @inject(TYPES.string) @named("S3Bucket") s3Bucket: string) {
-        console.log('upload ctor')
         this.s3Proxy = s3Proxy;
         this.ddbProxy = ddbProxy;
         this.s3Bucket = s3Bucket;
@@ -29,7 +28,7 @@ class UploadResumeHandler implements Handler {
 
     updateResumeLink = async (uid: string, s3Url: string) => {
         const params: AWS.DynamoDB.Types.UpdateItemInput = {
-            TableName: "acm-connect",
+            TableName: this.ddbProxy.ddbTableName,
             Key: {
                 "resource-type": { S: "student" },
                 "id": { S: uid }
