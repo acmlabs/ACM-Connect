@@ -1,33 +1,28 @@
-import express = require("express");
-
-import bcrypt = require("bcrypt");
-import DynamoDBProxyImpl from '../database/DynamoDbInterfaceImpl';
-import DynamoDbClient from '../config/modules/DynamoModule';
-import AWS, {DynamoDB} from "aws-sdk";
-
+import AWS, { DynamoDB } from 'aws-sdk';
+import bcrypt = require('bcrypt');
 import chalk from 'chalk';
-
+import express = require('express');
 import jwt from 'jsonwebtoken';
-import DynamoDbInterface from "../database/proxy/DynamoDbInterface";
 
-const uuid = require('uuid');
+import { keys } from '../config/keys';
+import DynamoDbClient from '../config/modules/DynamoModule';
+import DynamoDBProxyImpl from '../database/DynamoDbInterfaceImpl';
+import DynamoDbInterface from '../database/proxy/DynamoDbInterface';
 
-const SECRET: string = process.env.SECRET!;
-
-const saltRounds: number = 14;
+const SECRET: string = keys.JWT_SECRET;
 
 const ERROR: Number = -1;
 const MISMATCH: Number = 0;
 
-const ddbClient: DynamoDbInterface = new DynamoDBProxyImpl(DynamoDbClient);
+const ddbClient: DynamoDbInterface = new DynamoDBProxyImpl(DynamoDbClient, keys.AWS_DYNAMODB_TABLE_NAME);
 
 const attemptLogin = async (email: string, password: string) => {
     const params: AWS.DynamoDB.Types.QueryInput = {
-        TableName: "acm-connect",
+        TableName: ddbClient.ddbTableName,
         KeyConditionExpression: "#resourceType = :type",
         ExpressionAttributeValues: {
-            ":eaddress": {S: email},
-            ":type": {S: "student"}
+            ":eaddress": { S: email },
+            ":type": { S: "student" }
         },
         ExpressionAttributeNames: {
             "#resourceType": "resource-type",
@@ -72,7 +67,7 @@ const attemptLogin = async (email: string, password: string) => {
 const signIn = async (request: express.Request, response: express.Response) => {
     const body = request.body;
 
-    let {email, password} = body;
+    let { email, password } = body;
     email = email.toLowerCase();
 
     const userIdOrErrorMessage: string | Number = await attemptLogin(email, password);
@@ -99,13 +94,13 @@ const signIn = async (request: express.Request, response: express.Response) => {
         const userId: string = <string>userIdOrErrorMessage;
         // Valid login
         console.log(chalk.green(`Successful login: ${email}`));
-        const payload = {email: email, uid: userId};
+        const payload = { email: email, uid: userId };
         const token = jwt.sign(payload, SECRET, {
             expiresIn: '1h'
         });
-        response.cookie('token', token, {httpOnly: true})
+        response.cookie('token', token, { httpOnly: true })
             .status(200)
-            .json({email: email});
+            .json({ email: email });
     }
 };
 

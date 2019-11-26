@@ -1,5 +1,4 @@
 import express from "express";
-import jwt from "jsonwebtoken";
 import chalk from "chalk";
 
 const deleteJWTToken = (request: express.Request, response: express.Response, next: any) => {

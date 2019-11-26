@@ -1,21 +1,21 @@
-import express = require("express");
-import bcrypt = require("bcrypt");
-import AWS from "aws-sdk";
-
+import AWS from 'aws-sdk';
+import bcrypt = require('bcrypt');
 import chalk from 'chalk';
-import Handler from "../types/handler";
-import { inject, injectable } from "inversify";
-import DynamoDbInterface from "../database/proxy/DynamoDbInterface";
-import { TYPES } from "../config/types";
-import jwt from "jsonwebtoken";
-import { bool } from "aws-sdk/clients/signer";
+import express = require('express');
+import { inject, injectable } from 'inversify';
+import jwt from 'jsonwebtoken';
+
+import { TYPES } from '../config/types';
+import DynamoDbInterface from '../database/proxy/DynamoDbInterface';
+import Handler from '../types/handler';
+import { keys } from '../config/keys';
 
 const uuid = require('uuid');
 
 const saltRounds: number = 14;
 const ERROR: number = -1;
 
-const SECRET: string = process.env.SECRET!;
+const SECRET: string = keys.JWT_SECRET;
 
 @injectable()
 class SignUpHandler implements Handler {
@@ -28,7 +28,7 @@ class SignUpHandler implements Handler {
 
     queryEmailMatches = async (email: string) => {
         const params: AWS.DynamoDB.Types.QueryInput = {
-            TableName: "acm-connect",
+            TableName: this.ddbClient.ddbTableName,
             KeyConditionExpression: "#resourceType = :type",
             ExpressionAttributeValues: {
                 ":eaddress": { S: email },
@@ -50,7 +50,7 @@ class SignUpHandler implements Handler {
     tokenValid = async (token: string) => {
         const tokenQuery: AWS.DynamoDB.Types.QueryInput =
         {
-            TableName: "acm-connect",
+            TableName: this.ddbClient.ddbTableName,
             KeyConditionExpression: "#resourceType = :type AND #id = :id",
             ExpressionAttributeValues: {
                 ":consumed": { BOOL: false },
@@ -72,7 +72,7 @@ class SignUpHandler implements Handler {
 
     addUser = async (resourceType: string, email: string, passwordHash: string, uid: string, resumeUrl: string, token: string) => {
         const params: AWS.DynamoDB.Types.PutItemInput = {
-            TableName: "acm-connect",
+            TableName: this.ddbClient.ddbTableName,
             Item: {
                 id: { S: uid },
                 "resource-type": { S: resourceType },
@@ -89,7 +89,7 @@ class SignUpHandler implements Handler {
 
     consumeToken = async (token: string) => {
         const keyUpdate: AWS.DynamoDB.Types.UpdateItemInput = {
-            TableName: "acm-connect",
+            TableName: this.ddbClient.ddbTableName,
             Key: {
                 "resource-type": { S: "token" },
                 "id": { S: token }
@@ -108,7 +108,7 @@ class SignUpHandler implements Handler {
         const result = await this.ddbClient.update(keyUpdate);
 
         return result;
-    }
+    };
 
     handle = async (request: express.Request, response: express.Response) => {
         const body = request.body;
@@ -151,7 +151,6 @@ class SignUpHandler implements Handler {
             }
         }
     };
-
 }
 
 

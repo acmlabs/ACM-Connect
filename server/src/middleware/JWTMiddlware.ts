@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 import express from "express";
 import chalk from 'chalk'
+import { keys } from '../config/keys';
 
-const SECRET: string = process.env.SECRET!;
+const SECRET: string = keys.JWT_SECRET;
 
 // middleware function to check for logged-in users
-const verifyJWTToken = (request: express.Request, response: express.Response, next: any) => {
+const JWTMiddleware = (request: express.Request, response: express.Response, next: any) => {
     const token: string | undefined =
         request.body.token ||
         request.query.token ||
@@ -26,6 +27,9 @@ const verifyJWTToken = (request: express.Request, response: express.Response, ne
                 next();
             }
         });
+    } else {
+        response.sendStatus(401);
     }
 };
-module.exports = verifyJWTToken;
+
+export { JWTMiddleware }

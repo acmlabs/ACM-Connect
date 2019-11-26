@@ -1,7 +1,8 @@
 import AWS, { DynamoDB, Response } from 'aws-sdk';
 import chalk from 'chalk';
-import { inject, injectable } from "inversify";
-import { TYPES } from "../config/types";
+import { inject, injectable, named } from 'inversify';
+
+import { TYPES } from '../config/types';
 import DynamoDbInterface from './proxy/DynamoDbInterface';
 
 type PromiseResult<D, E> = D & { $response: Response<D, E> };
@@ -10,9 +11,12 @@ type PromiseResult<D, E> = D & { $response: Response<D, E> };
 class DynamoDBProxyImpl implements DynamoDbInterface {
 
     clientConn: AWS.DynamoDB;
+    ddbTableName: string;
 
-    constructor(@inject(TYPES.DDB)ddb: AWS.DynamoDB) {
+    constructor(@inject(TYPES.DDB) ddb: AWS.DynamoDB,
+        @inject(TYPES.string) @named("DynamoDB") ddbTableName: string) {
         this.clientConn = ddb;
+        this.ddbTableName = ddbTableName;
     }
 
     async put(document: AWS.DynamoDB.Types.PutItemInput) {
@@ -30,6 +34,8 @@ class DynamoDBProxyImpl implements DynamoDbInterface {
 
         return Promise.resolve(result.$response.error === null);
     }
+
+    public getTableName = () => this.ddbTableName;
 
     async get(params: AWS.DynamoDB.Types.GetItemInput) {
         const errorCallback = (err: AWS.AWSError, data: AWS.DynamoDB.Types.PutItemOutput) => {

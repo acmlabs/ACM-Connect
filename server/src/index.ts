@@ -1,17 +1,17 @@
 process.setMaxListeners(0);
 require('dotenv').config();
 
+import chalk from 'chalk';
 import { Injector } from './config/inversify.config';
 import { TYPES } from "./config/types";
-import chalk from 'chalk'
-
+import deleteJWTToken from './routes/logout';
+import RemoveResumeHandler from "./routes/removeResume";
+import ResumeLinkRequestHandler from "./routes/resumeURLRequest";
+import SignUpHandler from "./routes/signup";
 /* START ROUTERS */
 import UploadResumeHandler from "./routes/upload";
-import SignUpHandler from "./routes/signup";
-import ResumeLinkRequestHandler from "./routes/resumeURLRequest";
-import RemoveResumeHandler from "./routes/removeResume";
 
-import deleteJWTToken from './routes/logout';
+
 import express = require("express");
 
 import path = require("path")
@@ -26,7 +26,7 @@ const session = require("express-session")
 
 const bodyParser = require("body-parser");
 
-const jwtMiddleware = require('./middleware/JWTMiddlware');
+import { JWTMiddleware } from './middleware/JWTMiddlware';
 
 let corsOptions = {
     origin: "*",
@@ -53,21 +53,22 @@ const setupServer = () => {
     app.use(cookieParser());
     app.use(cors(corsOptions));
 
-    app.get('/api/checkToken', jwtMiddleware, function (request: express.Request, response: express.Response) {
+    app.get('/api/checkToken', JWTMiddleware, function (request: express.Request, response: express.Response) {
         console.log(chalk.blue("Calling check token"));
+
+        console.log('Call to check')
 
         if (response.locals) {
             response.status(200).json({ token: true });
         } else {
             response.status(200).json({ token: false });
         }
-
     });
 
-    app.post('/api/upload', jwtMiddleware, uploadHandler.handle);
+    app.post('/api/upload', JWTMiddleware, uploadHandler.handle);
 
-    app.get('/api/getresumeurl', jwtMiddleware, resumeLinkHandler.handle);
-    app.get('/api/deleteresume', jwtMiddleware, removeResumeHandler.handle);
+    app.get('/api/getresumeurl', JWTMiddleware, resumeLinkHandler.handle);
+    app.get('/api/deleteresume', JWTMiddleware, removeResumeHandler.handle);
 
     app.post("/api/signup", signUpHandler.handle);
     app.post("/api/signin", signin);

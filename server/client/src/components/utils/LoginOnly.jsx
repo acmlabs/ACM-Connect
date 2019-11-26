@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 import '../../common/checkToken'
 
@@ -16,7 +16,7 @@ export default function loginOnly(ComponentToProtect) {
             fetch('/api/checkToken')
                 .then(res => {
                     if (res.status === 200) {
-                        this.setState({loading: false});
+                        this.setState({ loading: false });
                     } else {
                         const error = new Error(res.error);
                         throw error;
@@ -24,12 +24,12 @@ export default function loginOnly(ComponentToProtect) {
                 })
                 .catch(err => {
                     console.error(err);
-                    this.setState({loading: false, redirect: true});
+                    this.setState({ loading: false, redirect: true });
                 });
         }
 
         render() {
-            const {loading, redirect} = this.state;
+            const { loading, redirect } = this.state;
             if (loading) {
                 return null;
             }

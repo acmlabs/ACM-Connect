@@ -1,8 +1,8 @@
 import Handler from "../types/handler";
 import express from 'express'
 import DynamoDbInterface from "../database/proxy/DynamoDbInterface";
-import {inject, injectable} from "inversify";
-import {TYPES} from "../config/types";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../config/types";
 import AWS from 'aws-sdk'
 
 @injectable()
@@ -10,7 +10,8 @@ class ResumeLinkRequestHandler implements Handler {
 
     private ddbProxy: DynamoDbInterface;
 
-    constructor(@inject(TYPES.DDBProxy)ddbProxy: DynamoDbInterface) {
+    constructor(
+        @inject(TYPES.DDBProxy) ddbProxy: DynamoDbInterface) {
         this.ddbProxy = ddbProxy;
     }
 
@@ -19,11 +20,11 @@ class ResumeLinkRequestHandler implements Handler {
         const id: string = response.locals.uid;
 
         const params: AWS.DynamoDB.Types.QueryInput = {
-            TableName: "acm-connect",
+            TableName: this.ddbProxy.ddbTableName,
             KeyConditionExpression: "#resourceType = :type AND #id = :id",
             ExpressionAttributeValues: {
-                ":id": {S: id},
-                ":type": {S: "student"}
+                ":id": { S: id },
+                ":type": { S: "student" }
             },
             ExpressionAttributeNames: {
                 "#resourceType": "resource-type",
@@ -41,13 +42,16 @@ class ResumeLinkRequestHandler implements Handler {
             response.sendStatus(500);
         } else {
             const profile: AWS.DynamoDB.AttributeMap = results[0];
+
+            console.log(profile)
             const resumeURL: string | undefined = profile['resume-url'].S;
 
             if (resumeURL === undefined) {
                 response.sendStatus(500);
             } else {
+                console.log(resumeURL)
                 response.status(200)
-                    .json({url: resumeURL})
+                    .json({ url: resumeURL })
             }
         }
     }

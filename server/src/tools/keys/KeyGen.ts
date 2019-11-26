@@ -1,10 +1,11 @@
-import express = require("express");
+require('dotenv')
 import AWS from 'aws-sdk';
 import { inject, injectable } from "inversify";
 import DynamoDbInterface from '../../database/proxy/DynamoDbInterface';
 import { TYPES } from "../../config/types";
 
 import chalk from 'chalk'
+import { keys } from "../../config/keys";
 
 const uuid = require('uuid');
 
@@ -25,7 +26,7 @@ class KeyGen {
         const tokenValue: string = uuid.v4();
 
         const keySchema: AWS.DynamoDB.Types.PutItemInput = {
-            TableName: "acm-connect",
+            TableName: keys.AWS_DYNAMODB_TABLE_NAME,
             Item: {
                 id: { S: tokenValue },
                 "resource-type": { S: "token" },

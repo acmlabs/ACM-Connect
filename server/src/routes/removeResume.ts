@@ -1,17 +1,16 @@
-import express = require("express");
-import AWS from "aws-sdk";
-import Handler from "../types/handler";
-import {inject, injectable, named} from "inversify";
-import DynamoDbInterface from "../database/proxy/DynamoDbInterface";
-import {TYPES} from "../config/types";
-import {S3Interface} from "../s3/proxy/S3Interface";
+import AWS from 'aws-sdk';
+import express = require('express');
+import { inject, injectable, named } from 'inversify';
+
+import { TYPES } from '../config/types';
+import DynamoDbInterface from '../database/proxy/DynamoDbInterface';
+import { S3Interface } from '../s3/proxy/S3Interface';
+import Handler from '../types/handler';
 
 const uuid = require('uuid');
 
 const saltRounds: number = 14;
 const ERROR: number = -1;
-
-const SECRET: string = process.env.SECRET!;
 
 @injectable()
 class RemoveResumeHandler implements Handler {
@@ -21,8 +20,8 @@ class RemoveResumeHandler implements Handler {
     private readonly s3Bucket: string;
 
     constructor(@inject(TYPES.DDBProxy) ddbProxy: DynamoDbInterface,
-                @inject(TYPES.S3Interface) s3Interface: S3Interface,
-                @inject(TYPES.string) @named("S3Bucket")Bucket: string) {
+        @inject(TYPES.S3Interface) s3Interface: S3Interface,
+        @inject(TYPES.string) @named("S3Bucket") Bucket: string) {
         this.ddbProxy = ddbProxy;
         this.s3Proxy = s3Interface;
         this.s3Bucket = Bucket;
@@ -30,30 +29,30 @@ class RemoveResumeHandler implements Handler {
 
     updateResumeLink = async (uid: string, s3Url: string) => {
         const params: AWS.DynamoDB.Types.UpdateItemInput = {
-            TableName: "acm-connect",
+            TableName: this.ddbProxy.ddbTableName,
             Key: {
-                "resource-type": {S: "student"},
-                "id": {S: uid}
+                "resource-type": { S: "student" },
+                "id": { S: uid }
             },
             UpdateExpression: "set #resumeUrl = :url",
             ExpressionAttributeNames: {
                 "#resumeUrl": "resume-url"
             },
             ExpressionAttributeValues: {
-                ":url": {S: s3Url}
+                ":url": { S: s3Url }
             }
         };
 
-        return  await this.ddbProxy.update(params);
+        return await this.ddbProxy.update(params);
     };
 
     queryId = async (email: string) => {
         const params: AWS.DynamoDB.Types.QueryInput = {
-            TableName: "acm-connect",
+            TableName: this.ddbProxy.ddbTableName,
             KeyConditionExpression: "#resourceType = :type",
             ExpressionAttributeValues: {
-                ":eaddress": {S: email},
-                ":type": {S: "student"}
+                ":eaddress": { S: email },
+                ":type": { S: "student" }
             },
             ExpressionAttributeNames: {
                 "#resourceType": "resource-type",
@@ -72,7 +71,7 @@ class RemoveResumeHandler implements Handler {
         return (profile['resume-url'].S !== '/');
     };
 
-    deleteFromS3 = async (s3Id: string) =>{
+    deleteFromS3 = async (s3Id: string) => {
         const deleteRequest: AWS.S3.DeleteObjectRequest = {
             Bucket: this.s3Bucket,
             Key: s3Id,
@@ -87,13 +86,13 @@ class RemoveResumeHandler implements Handler {
         const uid: string = response.locals.uid!;
         const email: string = response.locals.email!;
 
-        const isValidRecord : boolean  | null = await this.queryId(email);
+        const isValidRecord: boolean | null = await this.queryId(email);
 
         console.log('Is valid in ddb: ' + isValidRecord);
 
-        if(isValidRecord === null){
+        if (isValidRecord === null) {
             response.sendStatus(500);
-        }else if(!isValidRecord){
+        } else if (!isValidRecord) {
             response.sendStatus(401);
         }
 
