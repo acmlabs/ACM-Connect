@@ -1,13 +1,13 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import {Menu} from 'antd';
+import { Menu } from 'antd';
 
 import checkToken from "../checkToken";
 
 import NavMenuLoggedIn from "./NavMenuLoggedIn";
 import NavMenuLoggedOut from "./NavMenuLoggedOut";
 
-const {SubMenu} = Menu;
+const { SubMenu } = Menu;
 
 
 class NavMenu extends React.Component {
@@ -24,16 +24,21 @@ class NavMenu extends React.Component {
     async componentDidMount() {
         let loggedIn = await checkToken();
 
-        this.setState({loggedIn: loggedIn});
+        console.log(`Setting logged in to ${loggedIn}`)
+
+        this.setState({ loggedIn: loggedIn });
     }
 
+    async componentWillUnmount() {
+        this.setState({ loggedIn: false })
+    }
 
     renderLoggedIn() {
-        return <NavMenuLoggedIn {...this.props} handleClick={this.handleClick} current={this.props.current}/>
+        return <NavMenuLoggedIn {...this.props} handleClick={this.handleClick} current={this.props.current} />
     }
 
     renderNotLoggedIn() {
-        return <NavMenuLoggedOut {...this.props} handleClick={this.handleClick} current={this.props.current}/>
+        return <NavMenuLoggedOut {...this.props} handleClick={this.handleClick} current={this.props.current} />
     }
 
     render() {

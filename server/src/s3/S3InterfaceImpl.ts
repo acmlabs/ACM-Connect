@@ -38,7 +38,7 @@ class S3InterfaceImpl implements S3Interface {
     }
 
     constructFilename = (s3Bucket: string, s3Filename: string) => {
-        return `https://${s3Bucket}/${s3Filename}`;
+        return `https://s3.us-east-2.amazonaws.com/${s3Bucket}/${s3Filename}`;
     }
 
 }

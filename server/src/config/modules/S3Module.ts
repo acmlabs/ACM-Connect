@@ -1,13 +1,13 @@
-import AWS = require("aws-sdk");
+import AWS = require('aws-sdk');
 
-const uuid = require("uuid");
+import { keys } from '../keys';
 
 AWS.config.update({
     region: "us-east-1",
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
+    accessKeyId: keys.AWS_ACCESS_KEY,
+    secretAccessKey: keys.AWS_SECRET_KEY,
 });
 
-const s3Module: AWS.S3 = new AWS.S3({apiVersion: "2012-08-10"});
+const s3Module: AWS.S3 = new AWS.S3({ apiVersion: "2012-08-10" });
 
 export default s3Module;

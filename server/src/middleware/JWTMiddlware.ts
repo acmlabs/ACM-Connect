@@ -13,6 +13,8 @@ const JWTMiddleware = (request: express.Request, response: express.Response, nex
         request.headers['x-access-token'] ||
         request.cookies.token;
 
+    console.log(token)
+
     if (token) {
         jwt.verify(token, SECRET, (err, decoded) => {
             if (err) {

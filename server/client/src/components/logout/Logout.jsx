@@ -1,6 +1,6 @@
 import React from 'react'
-import {BounceLoader} from "react-spinners";
-import {css} from '@emotion/core';
+import { BounceLoader } from "react-spinners";
+import { css } from '@emotion/core';
 
 const override = css`
     display: block;
@@ -10,6 +10,7 @@ const override = css`
 
 class Logout extends React.Component {
     handleLogout = () => {
+        localStorage.removeItem('acmconnect_jwt_token')
         this.props.history.push("/")
     };
 

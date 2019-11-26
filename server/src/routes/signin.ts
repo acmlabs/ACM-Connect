@@ -100,7 +100,7 @@ const signIn = async (request: express.Request, response: express.Response) => {
         });
         response.cookie('token', token, { httpOnly: true })
             .status(200)
-            .json({ email: email });
+            .json({ email: email, token });
     }
 };
 

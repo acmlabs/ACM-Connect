@@ -31,6 +31,8 @@ class SignIn extends React.Component {
         if (res.status === 200) {
             const { email } = res.data;
             message.success(`Successfully signed in as ${email}`);
+            console.log(res.data.token);
+            localStorage.setItem('acmconnect_jwt_token', res.data.token);
             this.props.history.push("/");
         } else if (res.status === 401) {
             message.error("Incorrect username and/or password.");
