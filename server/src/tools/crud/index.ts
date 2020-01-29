@@ -1,8 +1,15 @@
 process.setMaxListeners(0);
 require('dotenv').config();
-
+import fs from 'fs';
 import { Injector } from '../../config/inversify.config';
 import RecruiterCreator, { Recruiter } from "./Recruiter";
+import path from 'path'
+
+const uuid = require('uuid');
+console.log(__dirname)
+const recruiter = JSON.parse(fs.readFileSync(path.join(__dirname, './recruiter.json'), 'utf8'))
+
+console.log(recruiter)
 
 const main = async () => {
     const symbol: symbol = Symbol.for("RecruiterCreator")
@@ -20,4 +27,4 @@ const main = async () => {
     recruiterCreator.addRecruiterProfile(recruiter)
 };
 
-main();
+// main();

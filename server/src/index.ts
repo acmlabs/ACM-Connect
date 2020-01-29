@@ -5,12 +5,13 @@ import chalk from 'chalk';
 import { Injector } from './config/inversify.config';
 import { TYPES } from "./config/types";
 import deleteJWTToken from './routes/logout';
+
+/* START ROUTERS */
 import RemoveResumeHandler from "./routes/removeResume";
 import ResumeLinkRequestHandler from "./routes/resumeURLRequest";
 import SignUpHandler from "./routes/signup";
-/* START ROUTERS */
 import UploadResumeHandler from "./routes/upload";
-
+import RecruiterProfileHandler from './routes/profiles';
 
 import express = require("express");
 
@@ -40,6 +41,7 @@ const uploadHandler: UploadResumeHandler = Injector.get<UploadResumeHandler>(TYP
 const signUpHandler: SignUpHandler = Injector.get<SignUpHandler>(TYPES.SignUpHandler);
 const resumeLinkHandler: ResumeLinkRequestHandler = Injector.get<ResumeLinkRequestHandler>(TYPES.ResumeLinkRequestHandler);
 const removeResumeHandler: RemoveResumeHandler = Injector.get<RemoveResumeHandler>(TYPES.RemoveResumeHandler);
+const recruiterResumeHandler: RecruiterProfileHandler = Injector.get<RecruiterProfileHandler>(TYPES.RecruiterProfileHandler);
 
 /**
  * Sets up server, cords, body-parser,
@@ -69,6 +71,8 @@ const setupServer = () => {
 
     app.get('/api/getresumeurl', JWTMiddleware, resumeLinkHandler.handle);
     app.get('/api/deleteresume', JWTMiddleware, removeResumeHandler.handle);
+
+    app.get('/api/recruiter/resumes', JWTMiddleware, recruiterResumeHandler.handle)
 
     app.post("/api/signup", signUpHandler.handle);
     app.post("/api/signin", signin);

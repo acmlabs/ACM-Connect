@@ -1,12 +1,12 @@
 require('dotenv')
 import AWS from 'aws-sdk';
+import bcrypt from 'bcrypt';
+import chalk from 'chalk';
 import { inject, injectable } from "inversify";
-import DynamoDbInterface from '../../database/proxy/DynamoDbInterface';
-import { TYPES } from "../../config/types";
-
-import chalk from 'chalk'
-import bcrypt, { compare } from 'bcrypt'
 import { keys } from "../../config/keys";
+import { TYPES } from "../../config/types";
+import DynamoDbInterface from '../../database/proxy/DynamoDbInterface';
+
 
 const uuid = require('uuid');
 

@@ -11,13 +11,17 @@ import DynamoDbInterface from '../database/proxy/DynamoDbInterface';
 
 const SECRET: string = keys.JWT_SECRET;
 
-const ERROR: Number = -1;
-const MISMATCH: Number = 0;
+const ERROR: number = -1;
+const MISMATCH: number = 0;
 
 const ddbClient: DynamoDbInterface = new DynamoDBProxyImpl(DynamoDbClient, keys.AWS_DYNAMODB_TABLE_NAME);
 
-const attemptLogin = async (email: string, password: string) => {
-    const params: AWS.DynamoDB.Types.QueryInput = {
+type accountType = 'student' | 'recruiter' | null
+
+const attemptLogin = async (email: string, password: string): Promise<[number | string, accountType]> => {
+    let accType: accountType = 'student'
+
+    const studentLogin: AWS.DynamoDB.Types.QueryInput = {
         TableName: ddbClient.ddbTableName,
         KeyConditionExpression: "#resourceType = :type",
         ExpressionAttributeValues: {
@@ -34,35 +38,59 @@ const attemptLogin = async (email: string, password: string) => {
         ProjectionExpression: "#email, #password, #id"
     };
 
-    const data: DynamoDB.AttributeMap[] | undefined = await ddbClient.query(params);
+    let data: DynamoDB.AttributeMap[] | undefined = await ddbClient.query(studentLogin);
+
+    if (!data || data.length === 0) {
+        console.log(`Didn't find an student account for ${email}, looking for recruiters.`)
+        const recruiterLogin: AWS.DynamoDB.Types.QueryInput = {
+            TableName: ddbClient.ddbTableName,
+            KeyConditionExpression: "#resourceType = :type",
+            ExpressionAttributeValues: {
+                ":eaddress": { S: email },
+                ":type": { S: "recruiter" }
+            },
+            ExpressionAttributeNames: {
+                "#resourceType": "resource-type",
+                "#email": "email",
+                "#password": "password",
+                "#id": "id"
+            },
+            FilterExpression: "#email = :eaddress",
+            ProjectionExpression: "#email, #password, #id"
+        };
+        accType = 'recruiter'
+        data = await ddbClient.query(recruiterLogin)
+    }
 
     if (!data) {
-        return ERROR;
-    } else {
-        const account: DynamoDB.AttributeMap = data[0];
-
-        if (!account ||
-            !(account.hasOwnProperty('email') && account.hasOwnProperty('password') && account.hasOwnProperty('id'))) {
-            console.log('No matching accounts');
-            return MISMATCH;
-        }
-
-
-        const dbEmail: string | undefined = account['email'].S;
-        const dbPasswordHash: string | undefined = account['password'].S;
-        const uid: string | undefined = account['id'].S;
-
-        if (dbEmail === undefined || dbPasswordHash === undefined || uid == undefined) {
-            console.log(chalk.red(`Malformed search or document on ${dbEmail}`));
-            return ERROR;
-        }
-
-        const passwordMatch: boolean = bcrypt.compareSync(password, dbPasswordHash);
-        console.log(chalk.yellow(`Login with ${dbEmail} -> ${passwordMatch}`));
-
-        return passwordMatch ? uid : MISMATCH;
+        return [ERROR, null];
     }
+
+    const account: DynamoDB.AttributeMap = data[0];
+
+    if (!account || !(account.hasOwnProperty('email') && account.hasOwnProperty('password') && account.hasOwnProperty('id'))) {
+        console.log('No matching accounts');
+        return [MISMATCH, null];
+    }
+
+    return [checkLogin(account, password), accType];
 };
+
+const checkLogin = (account: DynamoDB.AttributeMap, password: string): number | string => {
+    const dbEmail: string | undefined = account['email'].S;
+    const dbPasswordHash: string | undefined = account['password'].S;
+    const uid: string | undefined = account['id'].S;
+
+    if (dbEmail === undefined || dbPasswordHash === undefined || uid == undefined) {
+        console.log(chalk.red(`Malformed search or document on ${dbEmail}`));
+        return ERROR;
+    }
+
+    const passwordMatch: boolean = bcrypt.compareSync(password, dbPasswordHash);
+    console.log(chalk.yellow(`Login with ${dbEmail} -> ${passwordMatch}`));
+
+    return passwordMatch ? uid : MISMATCH;
+}
 
 const signIn = async (request: express.Request, response: express.Response) => {
     const body = request.body;
@@ -70,7 +98,9 @@ const signIn = async (request: express.Request, response: express.Response) => {
     let { email, password } = body;
     email = email.toLowerCase();
 
-    const userIdOrErrorMessage: string | Number = await attemptLogin(email, password);
+    const loginResult = await attemptLogin(email, password);
+
+    const [userIdOrErrorMessage, accType]: [string | Number, accountType] = loginResult
 
     console.log(userIdOrErrorMessage + ` ${userIdOrErrorMessage instanceof Number}`);
 
@@ -98,9 +128,16 @@ const signIn = async (request: express.Request, response: express.Response) => {
         const token = jwt.sign(payload, SECRET, {
             expiresIn: '1h'
         });
+
+        console.log(accType)
+
         response.cookie('token', token, { httpOnly: true })
             .status(200)
-            .json({ email: email, token });
+            .json({
+                email: email,
+                token,
+                type: accType
+            });
     }
 };
 

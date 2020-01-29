@@ -11,6 +11,8 @@ const TYPES = {
     SignUpHandler: Symbol.for("SignUpHandler"),
     ResumeLinkRequestHandler: Symbol.for("ResumeLinkRequestHandler"),
     RemoveResumeHandler: Symbol.for("RemoveResumeHandler"),
+    RecruiterProfileHandler: Symbol.for("UserProfiles"),
+
     KeyGen: Symbol.for("KeyGen")
 };
 
