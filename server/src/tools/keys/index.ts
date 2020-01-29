@@ -1,9 +1,9 @@
 process.setMaxListeners(0);
 require('dotenv').config();
 
-import { Injector } from '../config/inversify.config';
-import { TYPES } from "../config/types";
-import KeyGen, { Payload } from "./keys/KeyGen";
+import { Injector } from '../../config/inversify.config';
+import { TYPES } from "../../config/types";
+import KeyGen, { Payload } from "./KeyGen";
 import chalk from 'chalk';
 
 const fs = require('fs')
