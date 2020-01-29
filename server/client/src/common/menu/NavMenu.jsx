@@ -34,7 +34,8 @@ class NavMenu extends React.Component {
     }
 
     renderLoggedIn() {
-        return <NavMenuLoggedIn {...this.props} handleClick={this.handleClick} current={this.props.current} />
+
+        return <NavMenuLoggedIn {...this.props} type={localStorage.getItem('acmconnect_account_type')} handleClick={this.handleClick} current={this.props.current} />
     }
 
     renderNotLoggedIn() {

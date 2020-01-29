@@ -1,5 +1,7 @@
 import axios from "axios";
 import React from "react";
+import StripeCheckout from 'react-stripe-checkout';
+
 import {
   Breadcrumb,
   Button,
@@ -13,8 +15,6 @@ import {
 } from "antd";
 import NavMenu from "../../common/menu/NavMenu";
 import ACMApplyFooter from "../../common/apply_footer/ACMApplyFooter";
-
-const utdEmailSuffix = "utdallas.edu";
 
 class SignUp extends React.Component {
   state = {
@@ -37,9 +37,8 @@ class SignUp extends React.Component {
 
   emailValid = email => {
     const isEmailFormat = this.validateEmail(email);
-    const isUTDEmail = email.endsWith(utdEmailSuffix);
 
-    return isEmailFormat && isUTDEmail;
+    return isEmailFormat;
   };
 
   setError = error => {
@@ -150,6 +149,9 @@ class SignUp extends React.Component {
                 </Button>
               </Col>
             </Row>
+            <StripeCheckout>
+
+            </StripeCheckout>
           </Layout.Content>
           {ACMApplyFooter()}
         </Layout>

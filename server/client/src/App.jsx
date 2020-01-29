@@ -8,6 +8,7 @@ import SignUp from "./components/signup/SignUp.jsx";
 import SignIn from "./components/signin/SignIn.jsx";
 import Logout from './components/logout/Logout.jsx'
 import UploadResume from "./components/profile/Upload";
+import Resumes from './components/profile/ResumeDisplay';
 import FAQ from './components/faq/FAQ'
 import "./index.css";
 
@@ -20,6 +21,7 @@ const routing = (
             <Route exact path="/" component={Landing} />
             <Route exact path="/home" component={Landing} />
             <Route exact path="/faq" component={FAQ} />
+            <Route exact path="/profiles" component={Resumes} />
             <Route exact path="/profile" component={loginOnly(Profile)} />
             <Route exact path="/profile/upload" component={loginOnly(UploadResume)} />
             <Route exact path="/signup" component={SignUp} />
